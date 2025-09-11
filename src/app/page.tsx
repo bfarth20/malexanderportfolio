@@ -1,7 +1,6 @@
-import { getSiteKV, getWorks } from "../../lib/notion";
+import { getSiteKV, getWorks } from "@/lib/notion";
 
-// Rebuild content every 10 minutes so Notion edits go live automatically
-export const revalidate = 600;
+export const revalidate = 600; // ISR: re-check Notion every ~10 minutes
 
 export default async function HomePage() {
   const [kv, featured] = await Promise.all([
@@ -13,44 +12,31 @@ export default async function HomePage() {
   const subtitle = kv["home_subtitle"] || "Clean • Simple • Fast";
 
   return (
-    <div style={{ maxWidth: 900, margin: "2rem auto", padding: "0 1rem" }}>
-      <section>
-        <h1 style={{ fontSize: "2rem", fontWeight: 700 }}>{title}</h1>
-        <p style={{ color: "#666", marginTop: 8 }}>{subtitle}</p>
+    <div className="space-y-10">
+      <section className="flex flex-col gap-2">
+        <h2 className="text-3xl font-semibold tracking-tight">{title}</h2>
+        <p className="text-neutral-600 dark:text-neutral-300">{subtitle}</p>
       </section>
-
-      <section style={{ marginTop: 32 }}>
-        <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: 12 }}>
-          Featured Work
-        </h2>
+      <section>
+        <h3 className="mb-4 text-lg font-semibold">Featured Work</h3>
         {featured.length === 0 ? (
-          <p style={{ color: "#666" }}>
+          <p className="text-sm text-neutral-500">
             No featured items yet. In Notion, check the{" "}
             <strong>Featured</strong> box on a work.
           </p>
         ) : (
-          <ul
-            style={{
-              display: "grid",
-              gap: 12,
-              gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-            }}
-          >
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((w) => (
               <li
                 key={w.id}
-                style={{
-                  border: "1px solid #e5e5e5",
-                  borderRadius: 12,
-                  padding: 12,
-                }}
+                className="rounded-2xl border border-neutral-200/60 dark:border-neutral-800 p-4"
               >
-                <div style={{ fontWeight: 600 }}>{w.title}</div>
-                <div style={{ color: "#666", fontSize: 14 }}>
+                <div className="font-semibold">{w.title}</div>
+                <div className="text-sm text-neutral-500">
                   {[w.role, w.year].filter(Boolean).join(" • ")}
                 </div>
                 {w.description ? (
-                  <p style={{ marginTop: 8, fontSize: 14 }}>{w.description}</p>
+                  <p className="mt-2 text-sm">{w.description}</p>
                 ) : null}
               </li>
             ))}
