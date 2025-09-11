@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { getSiteKV } from "@/lib/notion";
+import { getSiteKV, getAssetUrl } from "@/lib/notion";
 
 export const revalidate = 600;
 
@@ -7,7 +7,10 @@ export default async function AboutPage() {
   const kv = await getSiteKV();
   const bio =
     kv["about_bio"] || "Add your artist biography in Notion (key: about_bio).";
-  const headshot = kv["about_headshot_url"]; // direct image URL
+
+  // Prefer Assets DB (`headshot`), fall back to the legacy `about_headshot_url` key
+  const headshotAsset = await getAssetUrl("headshot");
+  const headshot = headshotAsset || kv["about_headshot_url"];
 
   return (
     <div className="grid gap-6 sm:grid-cols-[240px,1fr]">
