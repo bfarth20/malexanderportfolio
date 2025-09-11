@@ -7,6 +7,8 @@ const siteDbId = process.env.NOTION_SITE_KV_DB_ID ?? "";
 const worksDbId = process.env.NOTION_WORKS_DB_ID ?? "";
 const siteDsIdEnv = process.env.NOTION_SITE_KV_DATA_SOURCE_ID ?? "";
 const worksDsIdEnv = process.env.NOTION_WORKS_DATA_SOURCE_ID ?? "";
+const assetsDbId = process.env.NOTION_ASSETS_DB_ID ?? "";
+const assetsDsIdEnv = process.env.NOTION_ASSETS_DATA_SOURCE_ID ?? "";
 
 if (!token) {
   throw new Error("Missing NOTION_TOKEN in environment");
@@ -43,6 +45,11 @@ type WorkProperties = {
   Images?: FilesProp;
   Description?: RichTextProp;
   Tags?: MultiSelectProp;
+};
+
+type AssetProperties = {
+  Name?: TitleProp;
+  File?: FilesProp;
 };
 
 type Page<P extends object = object> = {
@@ -139,4 +146,20 @@ export async function getWorks(
     });
   }
   return items;
+}
+
+/** Get a single asset URL by name (reads first file in the row named `name`) */
+export async function getAssetUrl(name: string): Promise<string | null> {
+  if (!assetsDbId) return null; // assets DB not configured
+  const data_source_id = await resolveDataSourceId(assetsDsIdEnv, assetsDbId);
+
+  const resp = (await notion.dataSources.query({
+    data_source_id,
+    filter: { property: "Name", title: { equals: name } },
+    page_size: 1,
+  })) as unknown as DataSourcesQueryResponse<AssetProperties>;
+
+  const page = resp.results?.[0];
+  const file = page?.properties?.File?.files?.[0];
+  return fileUrl(file);
 }
