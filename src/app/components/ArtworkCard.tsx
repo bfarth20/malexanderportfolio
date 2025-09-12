@@ -4,27 +4,14 @@ import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
 
 export type ArtworkCardProps = {
-  /** Thumbnail URL (square crop happens via CSS) */
   src: string;
-  /** Optional full-size image URL for the lightbox. Defaults to `src`. */
   fullSrc?: string;
-  /** Title shown on hover (and in the lightbox caption). */
   title: string;
-  /** Accessible alt text for the thumbnail and lightbox image. */
   alt?: string;
-  /** Optional className to style the outer wrapper. */
   className?: string;
-  /** If true, Next/Image optimization is enabled (requires remotePatterns). Default: false */
   optimize?: boolean;
 };
 
-/**
- * Reusable square artwork tile with hover zoom + title overlay and a built-in lightbox.
- * - Keyboard accessible (Enter/Space opens, Esc closes)
- * - Focus is returned to the trigger on close
- * - Click outside or on backdrop closes
- * - Mobile: shows title overlay by default; desktop: on hover
- */
 export default function ArtworkCard({
   src,
   fullSrc,
@@ -40,10 +27,8 @@ export default function ArtworkCard({
   function handleOpen() {
     setOpen(true);
   }
-
   function handleClose() {
     setOpen(false);
-    // return focus to the opener for a11y
     queueMicrotask(() => triggerRef.current?.focus());
   }
 
@@ -66,18 +51,24 @@ export default function ArtworkCard({
           fill
           sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 20vw"
           className="object-cover transition-transform duration-300 group-hover:scale-105"
-          // Avoid Next/Image domain config footgun unless user opts in
           unoptimized={!optimize}
         />
 
-        {/* Title overlay: visible by default on small screens; hover on md+ */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3 text-white">
-          <div
+        {/* Centered title overlay on hover/focus */}
+        <div
+          className="
+    pointer-events-none absolute inset-0 grid place-items-center
+    bg-black/40 opacity-0 transition-opacity duration-200
+    group-hover:opacity-100 group-focus-visible:opacity-100
+  "
+          aria-hidden
+        >
+          <span
             id={captionId}
-            className="rounded-md bg-gradient-to-t from-black/70 via-black/30 to-transparent px-3 py-2 text-sm font-medium md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100"
+            className="px-2 text-center text-base md:text-2xl font-semibold text-white"
           >
             {title}
-          </div>
+          </span>
         </div>
       </button>
 
@@ -114,12 +105,9 @@ function Lightbox({
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const [fallback, setFallback] = useState(false);
 
-  // Close on Esc; prevent background scroll when open
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -150,7 +138,6 @@ function Lightbox({
       onMouseDown={onBackdrop}
       ref={dialogRef}
     >
-      {/* Important: explicit height so Next/Image with fill can render */}
       <div className="relative w-full max-w-5xl h-[80vh] md:h-[85vh]">
         {!fallback ? (
           <Image
@@ -164,7 +151,6 @@ function Lightbox({
             onError={() => setFallback(true)}
           />
         ) : (
-          // Fallback to native img if Next/Image optimization/host fails
           <img
             src={src}
             alt={alt}
@@ -172,7 +158,6 @@ function Lightbox({
             draggable={false}
           />
         )}
-        {/* Close button */}
         <button
           type="button"
           data-close

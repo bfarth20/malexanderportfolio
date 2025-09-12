@@ -28,13 +28,18 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <header className="border-b border-neutral-200/60 dark:border-neutral-800">
-          <div className="mx-auto max-w-5xl px-4 py-4">
+        {/* Header: name left, nav right, no bottom border */}
+        <header className="bg-white">
+          <div className="mx-auto flex max-w-5xl items-center justify-between gap-6 px-4 py-4">
             <h1 className="text-xl font-semibold tracking-tight">{name}</h1>
-            <NavTabs />
+            <nav className="shrink-0">
+              <NavTabs />
+            </nav>
           </div>
         </header>
+
         <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
+
         <Footer name={name} location={location} email={email} phone={phone} />
       </body>
     </html>
