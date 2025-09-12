@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #ffffff; /* white gallery */
+  --foreground: #171717; /* near-black text */
 }
 
 @theme inline {
@@ -12,10 +12,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Keep site LIGHT even if user prefers dark */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #171717;
   }
 }
 
