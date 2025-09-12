@@ -45,19 +45,6 @@ export default async function HomePage() {
                   ) : (
                     <div className="aspect-square rounded-2xl bg-neutral-200" />
                   )}
-
-                  {/* Optional metadata below tile */}
-                  <div className="mt-2">
-                    <div className="font-semibold">{w.title}</div>
-                    <div className="text-sm text-neutral-500">
-                      {[w.role ?? undefined, w.year ?? undefined]
-                        .filter(Boolean)
-                        .join(" • ")}
-                    </div>
-                    {w.description ? (
-                      <p className="mt-2 text-sm">{w.description}</p>
-                    ) : null}
-                  </div>
                 </li>
               );
             })}
