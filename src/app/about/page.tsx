@@ -21,7 +21,7 @@ export default async function AboutPage() {
       </div>
       <div>
         <h2 className="text-2xl font-semibold">About the Artist</h2>
-        <p className="mt-4 whitespace-pre-wrap leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <p className="mt-4 whitespace-pre-wrap leading-relaxed text-black-700">
           {bio}
         </p>
       </div>
