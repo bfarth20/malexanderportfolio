@@ -1,16 +1,33 @@
-// app/page.tsx
-import ArtworkCard from "./components/ArtworkCard";
+import FeaturedSlideshow, {
+  type Slide,
+} from "@/app/components/FeaturedSlideshow.tsx";
 import { getSiteKV, getWorks } from "@/lib/notion";
-import type { Work } from "@/lib/types";
 
-export const revalidate = 600; // ISR
+export const revalidate = 600;
 
 export default async function HomePage() {
-  const kv = await getSiteKV();
-  const featured: Work[] = await getWorks({ featuredOnly: true });
+  const [kv, featured] = await Promise.all([
+    getSiteKV(),
+    getWorks({ featuredOnly: true }),
+  ]);
 
   const title = kv["home_title"] || "Artist Name";
   const subtitle = kv["home_subtitle"] || "Clean • Simple • Fast";
+
+  // Map works -> slides (skip items without images)
+  const slides: Slide[] = featured
+    .map((w) => {
+      const thumb = w.thumbnailUrl ?? w.images?.[0];
+      const full = (w.images && w.images[w.images.length - 1]) ?? thumb;
+      if (!thumb) return null;
+      return {
+        src: thumb,
+        fullSrc: full || thumb,
+        title: w.title,
+        alt: w.title,
+      };
+    })
+    .filter(Boolean) as Slide[];
 
   return (
     <div className="space-y-10">
@@ -20,36 +37,8 @@ export default async function HomePage() {
       </section>
 
       <section>
-        <h3 className="mb-4 text-lg font-semibold">Featured Work</h3>
-        {featured.length === 0 ? (
-          <p className="text-sm text-neutral-500">
-            No featured items yet. In Notion, check the{" "}
-            <strong>Featured</strong> box on a work.
-          </p>
-        ) : (
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((w) => {
-              const thumb = w.thumbnailUrl ?? w.images?.[0];
-              const full = (w.images && w.images[w.images.length - 1]) ?? thumb;
-
-              return (
-                <li key={w.id} className="group">
-                  {thumb ? (
-                    <ArtworkCard
-                      src={thumb}
-                      fullSrc={full || thumb}
-                      title={w.title}
-                      alt={w.title} // no `alt` in Work, so use title
-                      optimize={true} // you added remotePatterns, so go ahead
-                    />
-                  ) : (
-                    <div className="aspect-square rounded-2xl bg-neutral-200" />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
+        <h3 className="sr-only">Featured Work</h3>
+        <FeaturedSlideshow items={slides} intervalMs={6000} optimize />
       </section>
     </div>
   );
