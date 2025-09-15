@@ -11,6 +11,7 @@
   "dependencies": {
     "@notionhq/client": "^5.0.0",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.23.12",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0"

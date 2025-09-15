@@ -1,6 +1,6 @@
 import FeaturedSlideshow, {
   type Slide,
-} from "@/app/components/FeaturedSlideshow.tsx";
+} from "@/app/components/FeaturedSlideshow";
 import { getSiteKV, getWorks } from "@/lib/notion";
 
 export const revalidate = 600;
