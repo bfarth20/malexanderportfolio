@@ -3,7 +3,7 @@ import { getSiteKV, getAssetUrl } from "@/lib/notion";
 
 export const revalidate = 600;
 
-// Helper: try multiple asset names (in case your Assets DB rows are named with/without "Assets/")
+// Helper: try multiple asset names
 async function getAssetWithFallback(names: string[]) {
   for (const name of names) {
     const url = await getAssetUrl(name);
@@ -24,7 +24,7 @@ export default async function AboutPage() {
     kv["about_charity"] ||
     "Add charitable work details in Notion (key: about_charity).";
 
-  // Images from Assets DB (fallback to legacy key for the main headshot)
+  // Images
   const headshot =
     (await getAssetWithFallback(["headshot", "Assets/headshot"])) ||
     kv["about_headshot_url"] ||
@@ -42,15 +42,15 @@ export default async function AboutPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 space-y-16">
-      {/* 1) About */}
-      <section className="grid items-center gap-6 md:grid-cols-2">
-        <div className="md:order-1">
-          <h2 className="text-2xl font-semibold">About the Artist</h2>
-          <p className="mt-4 whitespace-pre-wrap leading-relaxed text-black-600">
-            {bio}
-          </p>
-        </div>
-        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-neutral-100 dark:bg-neutral-900 md:order-2">
+      {/* 1) About the Artist — desktop: text left, image right */}
+      <section className="grid items-start gap-6 md:grid-cols-2">
+        {/* Heading first on mobile; same column as text on desktop */}
+        <h2 className="text-2xl font-semibold md:col-start-1 md:row-start-1">
+          About the Artist
+        </h2>
+
+        {/* Image on the right at md+; stacked second on mobile */}
+        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-neutral-100 md:col-start-2 md:row-span-2">
           {headshot ? (
             <Image
               src={headshot}
@@ -60,11 +60,22 @@ export default async function AboutPage() {
             />
           ) : null}
         </div>
+
+        {/* Paragraph third on mobile; under heading in left column at md+ */}
+        <p className="whitespace-pre-wrap leading-relaxed text-lg text-neutral-800 md:col-start-1 md:row-start-2">
+          {bio}
+        </p>
       </section>
 
-      {/* 2) Clients & Commissions (image left, text right) */}
-      <section className="grid items-center gap-6 md:grid-cols-2">
-        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-neutral-100 dark:bg-neutral-900">
+      {/* 2) Clients & Commissions — desktop: image left, text right */}
+      <section className="grid items-start gap-6 md:grid-cols-2">
+        {/* Heading first on mobile; right column at md+ */}
+        <h3 className="text-2xl font-semibold md:col-start-2 md:row-start-1">
+          Clients &amp; Commissions
+        </h3>
+
+        {/* Image left at md+; second on mobile */}
+        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-neutral-100 md:col-start-1 md:row-span-2">
           {headshotClients ? (
             <Image
               src={headshotClients}
@@ -74,23 +85,22 @@ export default async function AboutPage() {
             />
           ) : null}
         </div>
-        <div>
-          <h3 className="text-2xl font-semibold">Clients &amp; Commissions</h3>
-          <p className="mt-4 whitespace-pre-wrap leading-relaxed text-black-600">
-            {companies}
-          </p>
-        </div>
+
+        {/* Paragraph third on mobile; right column at md+ under heading */}
+        <p className="whitespace-pre-wrap leading-relaxed text-lg text-neutral-800 md:col-start-2 md:row-start-2">
+          {companies}
+        </p>
       </section>
 
-      {/* 3) Charitable Works (image left, text right) */}
-      <section className="grid items-center gap-6 md:grid-cols-2">
-        <div className="md:order-1">
-          <h3 className="text-2xl font-semibold">Charitable Works</h3>
-          <p className="mt-4 whitespace-pre-wrap leading-relaxed text-black-600">
-            {charity}
-          </p>
-        </div>
-        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-neutral-100 dark:bg-neutral-900 md:order-2">
+      {/* 3) Charitable Works — desktop: text left, image right (kept as you had it) */}
+      <section className="grid items-start gap-6 md:grid-cols-2">
+        {/* Heading first on mobile; left column at md+ */}
+        <h3 className="text-2xl font-semibold md:col-start-1 md:row-start-1">
+          Charitable Works
+        </h3>
+
+        {/* Image right at md+; second on mobile */}
+        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-neutral-100 md:col-start-2 md:row-span-2">
           {headshotCharity ? (
             <Image
               src={headshotCharity}
@@ -100,6 +110,11 @@ export default async function AboutPage() {
             />
           ) : null}
         </div>
+
+        {/* Paragraph third on mobile; under heading in left column at md+ */}
+        <p className="whitespace-pre-wrap leading-relaxed text-lg text-neutral-800 md:col-start-1 md:row-start-2">
+          {charity}
+        </p>
       </section>
     </div>
   );
