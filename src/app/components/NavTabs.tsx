@@ -9,7 +9,7 @@ const links = [
   { href: "/", label: "Home" },
   { href: "/portfolio", label: "Portfolio" },
   { href: "/about", label: "About the Artist" },
-  { href: "/contact", label: "Contact Me" },
+  { href: "/contact", label: "Connect" },
 ];
 
 export function NavTabs() {
