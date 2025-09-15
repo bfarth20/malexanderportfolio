@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
+import { motion } from "framer-motion";
 
 export type Slide = {
   src: string;
@@ -40,7 +41,7 @@ export default function FeaturedSlideshow({
 
   const count = items.length;
 
-  // Hooks must be unconditional
+  // Always set up hooks
   useEffect(() => {
     const onVis = () => setPaused(document.hidden);
     document.addEventListener("visibilitychange", onVis);
@@ -51,7 +52,6 @@ export default function FeaturedSlideshow({
     if (count < 2 || paused) return;
     const id = setInterval(() => {
       setIndex((current) => {
-        // inline safeIndex to satisfy exhaustive-deps
         const next = (((current + 1) % count) + count) % count;
         return loaded[next] ? next : current;
       });
@@ -61,7 +61,6 @@ export default function FeaturedSlideshow({
 
   if (!count) return null;
 
-  // Build mobile height class (e.g., h-[60vh])
   const mobileHClass = `h-[${mobileVh}vh]`;
 
   return (
@@ -73,23 +72,24 @@ export default function FeaturedSlideshow({
       <div
         className={clsx(
           "relative w-full overflow-hidden rounded-2xl bg-neutral-100",
-          mobileHClass, // mobile: fixed vh, good for portraits
-          desktopAspectClass // md+: landscape aspect so cover looks intentional
+          mobileHClass,
+          desktopAspectClass
         )}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
+        style={{ isolation: "isolate" }} // ensures predictable stacking
       >
         {items.map((s, i) => {
           const active = i === index;
           return (
-            <div
+            <motion.div
               key={i}
               aria-hidden={!active}
-              className={clsx(
-                "absolute inset-0 will-change-opacity",
-                "transition-opacity duration-[1600ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-                active ? "opacity-100" : "opacity-0"
-              )}
+              className="absolute inset-0"
+              initial={false}
+              animate={{ opacity: active ? 1 : 0 }}
+              transition={{ duration: 4.0, ease: [0.22, 1, 0.36, 1] }}
+              style={{ zIndex: active ? 2 : 1, willChange: "opacity" }}
             >
               <Image
                 src={s.fullSrc || s.src}
@@ -113,7 +113,7 @@ export default function FeaturedSlideshow({
                 }
                 priority={i === 0}
               />
-            </div>
+            </motion.div>
           );
         })}
 
