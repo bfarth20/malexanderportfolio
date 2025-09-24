@@ -45,6 +45,7 @@ type WorkProperties = {
   Images?: FilesProp;
   Description?: RichTextProp;
   Tags?: MultiSelectProp;
+  Sort?: NumberProp;
 };
 
 type AssetProperties = {
@@ -121,7 +122,11 @@ export async function getWorks(
     filter: featuredOnly
       ? { property: "Featured", checkbox: { equals: true } }
       : undefined,
-    sorts: [{ property: "Year", direction: "descending" }],
+    // ✅ Sort by Sort (asc), then Year (desc) as a tiebreaker
+    sorts: [
+      { property: "Sort", direction: "ascending" },
+      { property: "Year", direction: "descending" },
+    ],
     page_size: 100,
   })) as unknown as DataSourcesQueryResponse<WorkProperties>;
 
@@ -143,8 +148,21 @@ export async function getWorks(
       images: images as string[],
       description: rt(p?.Description?.rich_text) || null,
       tags: (p?.Tags?.multi_select ?? []).map((t) => t.name),
+      sort: p?.Sort?.number ?? null, // ✅ NEW
     });
   }
+
+  // ✅ Safety: enforce the same order client-side
+  items.sort((a, b) => {
+    const as = a.sort ?? Number.POSITIVE_INFINITY;
+    const bs = b.sort ?? Number.POSITIVE_INFINITY;
+    if (as !== bs) return as - bs;
+    const ay = a.year ?? -Infinity;
+    const by = b.year ?? -Infinity;
+    if (ay !== by) return by - ay; // desc
+    return a.title.localeCompare(b.title);
+  });
+
   return items;
 }
 

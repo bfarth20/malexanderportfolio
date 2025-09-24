@@ -10,23 +10,34 @@ export default function PortfolioClient({ works }: { works: Work[] }) {
   const sp = useSearchParams();
   const selectedRole = sp?.get("role") ?? "";
 
-  // Unique roles (ignore null/blank)
+  const ordered = useMemo(() => {
+    return [...works].sort((a, b) => {
+      const as = a.sort ?? Number.POSITIVE_INFINITY;
+      const bs = b.sort ?? Number.POSITIVE_INFINITY;
+      if (as !== bs) return as - bs;
+      const ay = a.year ?? -Infinity;
+      const by = b.year ?? -Infinity;
+      if (ay !== by) return by - ay;
+      return a.title.localeCompare(b.title);
+    });
+  }, [works]);
+
   const allRoles = useMemo<string[]>(
     () =>
       Array.from(
         new Set(
-          works.map((w) => w.role ?? "").filter((r) => r.trim().length > 0)
+          ordered.map((w) => w.role ?? "").filter((r) => r.trim().length > 0)
         )
       ).sort(),
-    [works]
+    [ordered]
   );
 
   const filtered = useMemo<Work[]>(
     () =>
       selectedRole
-        ? works.filter((w) => (w.role ?? "") === selectedRole)
-        : works,
-    [works, selectedRole]
+        ? ordered.filter((w) => (w.role ?? "") === selectedRole)
+        : ordered,
+    [ordered, selectedRole]
   );
 
   return (
