@@ -37,15 +37,18 @@ export default function PortfolioClient({ works }: { works: Work[] }) {
 
       <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-3">
         {filtered.map((w) => {
+          // Thumbnail defaults to first image
           const thumb = w.thumbnailUrl ?? w.images?.[0];
-          const full = (w.images && w.images[w.images.length - 1]) ?? thumb;
+
+          // Full gallery for the lightbox (filter out any falsy/undefined)
+          const gallery = (w.images ?? []).filter(Boolean);
 
           return (
             <li key={w.id}>
               {thumb ? (
                 <ArtworkCard
                   src={thumb}
-                  fullSrc={full || thumb}
+                  images={gallery.length ? gallery : undefined} // pass all images if present
                   title={w.title}
                   alt={w.title}
                   optimize={true}
