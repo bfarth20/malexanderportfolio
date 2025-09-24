@@ -17,12 +17,11 @@ export default async function HomePage() {
   // Map works -> slides (skip items without images)
   const slides: Slide[] = featured
     .map((w) => {
-      const thumb = w.thumbnailUrl ?? w.images?.[0];
-      const full = (w.images && w.images[w.images.length - 1]) ?? thumb;
-      if (!thumb) return null;
+      const cover = w.thumbnailUrl ?? w.images?.[0]; // first image, not last
+      if (!cover) return null;
       return {
-        src: thumb,
-        fullSrc: full || thumb,
+        src: cover,
+        fullSrc: cover,
         title: w.title,
         alt: w.title,
       };
