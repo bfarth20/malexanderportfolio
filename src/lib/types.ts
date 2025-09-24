@@ -10,4 +10,5 @@ export type Work = {
   featured?: boolean;
   images?: string[];
   tags?: string[];
+  sort: number | null;
 };
